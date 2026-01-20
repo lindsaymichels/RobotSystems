@@ -144,78 +144,53 @@ def get_ip(ifaces=['wlan0', 'eth0']):
 
 
 def reset_mcu():
-    """
-    Reset mcu on Robot Hat.
-
-    This is helpful if the mcu somehow stuck in a I2C data
-    transfer loop, and Raspberry Pi getting IOError while
-    Reading ADC, manipulating PWM, etc.
-    """
-    from .pin import Pin
-    pin = Pin("MCURST")
-    pin.off()
-    time.sleep(0.01)
-    pin.on()
-    time.sleep(0.01)
-    pin.close()
+    pass
+    # from .pin import Pin
+    # pin = Pin("MCURST")
+    # pin.off()
+    # time.sleep(0.01)
+    # pin.on()
+    # time.sleep(0.01)
+    # pin.close()
 
 def get_battery_voltage():
-    """
-    Get battery voltage
-
-    :return: battery voltage(V)
-    :rtype: float
-    """
-    global _adc_obj
-    from .adc import ADC
-
-    if not isinstance(_adc_obj, ADC):
-        _adc_obj = ADC("A4")
-    raw_voltage = _adc_obj.read_voltage()
-    voltage = raw_voltage * 3
-    return voltage
+    return 7.4
+    # global _adc_obj
+    # from .adc import ADC
+    # if not isinstance(_adc_obj, ADC):
+    #     _adc_obj = ADC("A4")
+    # raw_voltage = _adc_obj.read_voltage()
+    # voltage = raw_voltage * 3
+    # return voltage
 
 def get_username():
     return os.popen('echo ${SUDO_USER:-$LOGNAME}').readline().strip()
 
 def set_pin(pin: int, value: bool):
-    """
-    Set pin value
-
-    :param pin: pin number
-    :type pin: int
-    :param value: pin value
-    :type value: bool
-    """
-    from . import __device__
-    pincmd = ''
-    if command_exists("pinctrl"):
-        pincmd = 'pinctrl'
-    elif command_exists("raspi-gpio"):
-        pincmd = 'raspi-gpio'
-    else:
-        error("Can't find `pinctrl` or `raspi-gpio` to enable speaker")
-        return
-
-    cmd = f"{pincmd} set {pin} op {'dh' if value else 'dl'}"
-    debug(cmd)
-    run_command(cmd)
+    pass
+    # from . import __device__
+    # pincmd = ''
+    # if command_exists("pinctrl"):
+    #     pincmd = 'pinctrl'
+    # elif command_exists("raspi-gpio"):
+    #     pincmd = 'raspi-gpio'
+    # else:
+    #     error("Can't find `pinctrl` or `raspi-gpio` to enable speaker")
+    #     return
+    # cmd = f"{pincmd} set {pin} op {'dh' if value else 'dl'}"
+    # debug(cmd)
+    # run_command(cmd)
 
 def enable_speaker():
-    """
-    Enable speaker
-    """
-    from . import __device__
-    set_pin(__device__.spk_en, True)
-    # play a short sound to fill data and avoid the speaker overheating
-    run_command(f"play -n trim 0.0 0.5 2>/dev/null")
+    pass
+    # from . import __device__
+    # set_pin(__device__.spk_en, True)
+    # run_command(f"play -n trim 0.0 0.5 2>/dev/null")
 
 def disable_speaker():
-    """
-    Disable speaker
-    """
-    from . import __device__
-    set_pin(__device__.spk_en, False)
+    pass
+    # from . import __device__
+    # set_pin(__device__.spk_en, False)
 
 def check_executable(executable):
     """
