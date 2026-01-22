@@ -255,6 +255,8 @@ class Picarx(object):
         self.ackerman_speed(-speed)
         time.sleep(1.5)
         self.stop()
+        self.set_dir_servo_angle(0)
+
         
     def park_right(self, speed):
         logging.debug(f"Parallel park right called with speed: {speed}")
@@ -275,13 +277,12 @@ class Picarx(object):
         self.ackerman_speed(speed)
         time.sleep(1.5)
         self.stop()
-        
         #need to sleep in between to allow servo to reach position
         #set dir to opposite direction
         self.set_dir_servo_angle(30)
         time.sleep(0.1)
         self.ackerman_speed(-speed)
-        time.sleep(1.5)
+        time.sleep(2)
         self.stop()
         
         self.set_dir_servo_angle(0)
@@ -293,15 +294,13 @@ class Picarx(object):
         self.ackerman_speed(speed)
         time.sleep(1.5)
         self.stop()
-        
         #need to sleep in between to allow servo to reach position
         #set dir to opposite direction
         self.set_dir_servo_angle(-30)
         time.sleep(0.1)
         self.ackerman_speed(-speed)
-        time.sleep(1.5)
+        time.sleep(2)
         self.stop()
-        
         self.set_dir_servo_angle(0)
         
     def stop(self):

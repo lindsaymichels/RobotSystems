@@ -15,10 +15,8 @@ while True:
         direction = input("Enter direction (left or right): ").strip().lower()
         if direction == 'left':
             px.park_left(30)
-            print("Parking left")
         elif direction == 'right':
             px.park_right(30)
-            print("Parking right")
         else:
             print("Invalid direction. Please enter 'left' or 'right'.")
     elif manuever == 'straight':
@@ -26,13 +24,11 @@ while True:
         if direction == 'forward':
             px.straight_forward(30)
             time.sleep(2)
-            print("Moving straight forward")
             px.set_motor_speed(1, 0)
             px.set_motor_speed(2, 0)
         elif direction == 'backward':
             px.straight_backward(30)
             time.sleep(2)
-            print("Moving straight backward")
             px.set_motor_speed(1, 0)
             px.set_motor_speed(2, 0)
         else:
@@ -42,10 +38,8 @@ while True:
             direction = input("Enter direction (left or right): ").strip().lower()
             if direction == 'left':
                 px.three_point_turn_left(30)
-                print("Three point turn left")
             elif direction == 'right':
                 px.three_point_turn_right(30)
-                print("Three point turn right")
             else:
                 print("Invalid direction. Please enter 'left' or 'right'.")
         else:
