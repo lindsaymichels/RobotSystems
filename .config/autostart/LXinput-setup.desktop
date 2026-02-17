@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=LXInput 自动启动
+Comment=用 LXInput 中已有的设置配置键盘和鼠标
+NoDisplay=true
+Exec=sh -c 'xset m 20/10 10 r rate 500 30 b on(null)'
+NotShowIn=GNOME;KDE;XFCE;

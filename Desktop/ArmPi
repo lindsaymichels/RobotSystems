@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=ArmPi
+Comment=ArmPi Program
+Encoding=UTF-8
+Exec=sudo python3 /home/pi/ArmPi_PC_Software/ArmPi.py
+Terminal=false
+MultipleArgs=false
+Type=Application
+Categories=Application;Development;
+StartupNotify=true
+Icon=/home/pi/ArmPi_PC_Software/images/Arm.ico

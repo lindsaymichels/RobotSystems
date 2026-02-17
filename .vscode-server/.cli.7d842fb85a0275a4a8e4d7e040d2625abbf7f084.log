@@ -1,0 +1,3 @@
+[2026-02-17 12:27:54] error This machine does not meet Visual Studio Code Server's prerequisites, expected either...
+  - find GLIBCXX >= v3.4.26 (but found v3.4.25 instead) for GNU environments
+  - find /lib/ld-musl-x86_64.so.1, which is required to run the Visual Studio Code Server in musl environments
