@@ -41,11 +41,33 @@ __RGB_DMA = 10
 __RGB_BRIGHTNESS = 120
 __RGB_CHANNEL = 0
 __RGB_INVERT = False
-RGB = PixelStrip(__RGB_COUNT, __RGB_PIN, __RGB_FREQ_HZ, __RGB_DMA, __RGB_INVERT, __RGB_BRIGHTNESS, __RGB_CHANNEL)
-RGB.begin()
-for i in range(RGB.numPixels()):
-    RGB.setPixelColor(i, PixelColor(0,0,0))
+
+class _DummyRGB:
+    def begin(self):
+        return
+
+    def numPixels(self):
+        return 0
+
+    def setPixelColor(self, i, color):
+        return
+
+    def show(self):
+        return
+
+
+try:
+    if os.geteuid() != 0:
+        raise PermissionError("RGB init requires root privileges")
+    RGB = PixelStrip(__RGB_COUNT, __RGB_PIN, __RGB_FREQ_HZ, __RGB_DMA, __RGB_INVERT, __RGB_BRIGHTNESS, __RGB_CHANNEL)
+    RGB.begin()
+    for i in range(RGB.numPixels()):
+        RGB.setPixelColor(i, PixelColor(0, 0, 0))
     RGB.show()
+except Exception as e:
+    # Keep module importable in non-root/dev environments.
+    print("Warning: RGB disabled:", e)
+    RGB = _DummyRGB()
 
 def setMotor(index, speed):
     if index < 1 or index > 4:
