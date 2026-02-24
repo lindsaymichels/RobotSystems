@@ -1,7 +1,10 @@
 #!/usr/bin/python3
 # coding=utf8
 import sys
-sys.path.append('/home/pi/ArmPi/')
+from pathlib import Path
+BASE_DIR = Path(__file__).resolve().parents[1]
+if str(BASE_DIR) not in sys.path:
+    sys.path.append(str(BASE_DIR))
 import cv2
 import time
 import Camera
@@ -99,6 +102,16 @@ coordinate = {
     'green': (-15 + 1, -7 - 0.5, 1.5),
     'blue':  (-15 + 1, -7 - 0.5, 1.5),
 }
+# Pickup safety bounds (cm, world frame). Tune for your physical workspace.
+WORKSPACE_X_MIN = -18.0
+WORKSPACE_X_MAX = 18.0
+WORKSPACE_Y_MIN = -2.0
+WORKSPACE_Y_MAX = 22.0
+
+
+def in_workspace(x, y):
+    return WORKSPACE_X_MIN <= x <= WORKSPACE_X_MAX and WORKSPACE_Y_MIN <= y <= WORKSPACE_Y_MAX
+
 z_r = coordinate['red'][2]
 z_g = coordinate['green'][2]
 z_b = coordinate['blue'][2]
@@ -174,6 +187,12 @@ def move():
     while True:
         if __isRunning:
             if detect_color != 'None' and start_pick_up:  # 如果检测到方块没有移动一段时间后，开始夹取
+                if not in_workspace(world_X, world_Y):
+                    print("Skip pickup, target out of workspace:", world_X, world_Y)
+                    start_pick_up = False
+                    detect_color = 'None'
+                    get_roi = False
+                    continue
                 set_rgb(detect_color)
                 setBuzzer(0.1)
                 # 高度累加
@@ -188,6 +207,9 @@ def move():
                 result = AK.setPitchRangeMoving((world_X, world_Y, 7), -90, -90, 0)  # 移到目标位置，高度5cm
                 if result == False:
                     unreachable = True
+                    # 恢复检测流程，避免一直卡在不可达状态
+                    start_pick_up = False
+                    detect_color = 'None'
                 else:
                     unreachable = False
                     time.sleep(result[2]/1000)
@@ -327,6 +349,9 @@ def run(img):
         if max_area > 2500:  # 有找到最大面积
             rect = cv2.minAreaRect(areaMaxContour_max)
             box = np.int0(cv2.boxPoints(rect))
+            # 锁定当前目标颜色，避免start_pick_up触发时颜色仍为None
+            detect_color = color_area_max
+            draw_color = range_rgb[color_area_max]
             
             roi = getROI(box) #获取roi区域
             get_roi = True
