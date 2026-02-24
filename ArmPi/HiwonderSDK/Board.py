@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
 import os
 import sys
-sys.path.append('/home/pi/ArmPi/HiwonderSDK/')
+from pathlib import Path
+SDK_DIR = Path(__file__).resolve().parent
+if str(SDK_DIR) not in sys.path:
+    sys.path.append(str(SDK_DIR))
 import time
 import RPi.GPIO as GPIO
-from BusServoCmd import *
+try:
+    from .BusServoCmd import *
+except ImportError:
+    from BusServoCmd import *
 from smbus2 import SMBus, i2c_msg
 from rpi_ws281x import PixelStrip
 from rpi_ws281x import Color as PixelColor
