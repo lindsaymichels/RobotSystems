@@ -32,7 +32,7 @@ range_rgb = {
 }
 
 # Gripper closed angle used for grasping
-servo1 = 500
+servo1 = 530
 
 # Runtime state
 count = 0
