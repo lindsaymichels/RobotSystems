@@ -36,10 +36,13 @@ while True:
         img = dst.copy()
 
         cv2.line(dst, (0, int(h / 2)), (w, int(h / 2)), (0, 0, 255), 2)
-        cv2.line(dst, (int(w / 2), 0), (int(w / 2), h), (0, 0, 255), 2)        
+        cv2.line(dst, (int(w / 2), 0), (int(w / 2), h), (0, 0, 255), 2)
+        cv2.putText(dst, "Space: save map param  Esc: exit", (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
         cv2.imshow('dst',dst)
-        key = cv2.waitKey(1)
-        if key == 32:
+        key = cv2.waitKey(10) & 0xFF
+        if key == ord(' '):
+            print('Space pressed, detecting chessboard...')
             gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
             # Find the chess board corners
             ret_, corners = cv2.findChessboardCorners(gray, (calibration_size[1], calibration_size[0]),None)
@@ -59,7 +62,9 @@ while True:
                 map_param = corners_length/map_param
 
                 np.savez(map_param_path, map_param = map_param, fmd='%d', delimiter=' ')
-                print('save successful')
+                print('save successful:', map_param_path + '.npz', 'map_param=', map_param)
+            else:
+                print('Chessboard not found. Keep the whole board in frame and press Space again.')
         if key == 27:
             break
     else:
