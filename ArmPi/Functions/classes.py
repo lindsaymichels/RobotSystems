@@ -163,7 +163,7 @@ class Motion:
 
                         if not self.is_running:
                             continue
-                        self.ak.setPitchRangeMoving((world_X, world_Y, 1), -90, -90, 0, 1000)
+                        self.ak.setPitchRangeMoving((world_X, world_Y, 0.6), -90, -90, 0, 1000)
                         time.sleep(2)
 
                         if not self.is_running:
