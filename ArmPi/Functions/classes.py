@@ -257,6 +257,7 @@ class Perception:
         self.roi = ()
         self.last_x = 0
         self.last_y = 0
+        self.is_running = False
 
     def preprocess_frame(self, img):
         global get_roi
@@ -360,7 +361,7 @@ class Perception:
         global __isRunning
         global start_pick_up
 
-        if not __isRunning:
+        if not self.is_running:
             return img
 
         frame_lab = self.preprocess_frame(img)
@@ -415,6 +416,7 @@ def reset():
     action_finish = True
     start_pick_up = False
     start_count_t1 = True
+    perception.is_running = False
     perception.t1 = 0
     perception.roi = ()
     perception.last_x = 0
@@ -430,6 +432,7 @@ def start():
     global __isRunning
     reset()
     __isRunning = True
+    perception.is_running = True
     print('ColorTracking Start')
 
 
@@ -438,6 +441,7 @@ def stop():
     global __isRunning
     _stop = True
     __isRunning = False
+    perception.is_running = False
     print('ColorTracking Stop')
 
 
@@ -446,6 +450,7 @@ def exit():
     global __isRunning
     _stop = True
     __isRunning = False
+    perception.is_running = False
     print('ColorTracking Exit')
 
 
