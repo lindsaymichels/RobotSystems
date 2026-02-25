@@ -135,7 +135,7 @@ class Motion:
                     action_finish = False
                     self.set_rgb(detect_color)
                     self.set_buzzer(0.1)
-                    result = self.ak.setPitchRangeMoving((world_X, world_Y - 1.2, 5), -90, -90, 0)
+                    result = self.ak.setPitchRangeMoving((world_X, world_Y - 2, 5), -90, -90, 0)
                     if result is False:
                         unreachable = True
                     else:
@@ -163,7 +163,7 @@ class Motion:
 
                         if not self.is_running:
                             continue
-                        self.ak.setPitchRangeMoving((world_X, world_Y, 2), -90, -90, 0, 1000)
+                        self.ak.setPitchRangeMoving((world_X, world_Y, 1.5), -90, -90, 0, 1000)
                         time.sleep(2)
 
                         if not self.is_running:
