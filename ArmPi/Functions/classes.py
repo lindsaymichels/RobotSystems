@@ -60,6 +60,7 @@ __target_color = ('red',)
 def setTargetColor(target_color):
     global __target_color
     __target_color = target_color
+    perception.target_color = target_color
     return (True, ())
 
 
@@ -82,6 +83,7 @@ def getAreaMaxContour(contours):
 class Motion:
     def __init__(self, arm_ik):
         self.ak = arm_ik
+        self.is_running = False
         # Coordinates for placing different colored wooden blocks(x, y, z)
         self.coordinate = {
             'red': (-15 + 0.5, 12 - 0.5, 1.5),
@@ -119,7 +121,6 @@ class Motion:
         global _stop
         global get_roi
         global unreachable
-        global __isRunning
         global detect_color
         global action_finish
         global rotation_angle
@@ -129,7 +130,7 @@ class Motion:
         global start_pick_up, first_move
 
         while True:
-            if __isRunning:
+            if self.is_running:
                 if first_move and start_pick_up:
                     action_finish = False
                     self.set_rgb(detect_color)
@@ -146,37 +147,37 @@ class Motion:
                 elif not first_move and not unreachable:
                     self.set_rgb(detect_color)
                     if track:
-                        if not __isRunning:
+                        if not self.is_running:
                             continue
                         self.ak.setPitchRangeMoving((world_x, world_y - 2, 5), -90, -90, 0, 20)
                         time.sleep(0.02)
                         track = False
                     if start_pick_up:
                         action_finish = False
-                        if not __isRunning:
+                        if not self.is_running:
                             continue
                         Board.setBusServoPulse(1, servo1 - 280, 500)
                         servo2_angle = getAngle(world_X, world_Y, rotation_angle)
                         Board.setBusServoPulse(2, servo2_angle, 500)
                         time.sleep(0.8)
 
-                        if not __isRunning:
+                        if not self.is_running:
                             continue
                         self.ak.setPitchRangeMoving((world_X, world_Y, 2), -90, -90, 0, 1000)
                         time.sleep(2)
 
-                        if not __isRunning:
+                        if not self.is_running:
                             continue
                         Board.setBusServoPulse(1, servo1, 500)
                         time.sleep(1)
 
-                        if not __isRunning:
+                        if not self.is_running:
                             continue
                         Board.setBusServoPulse(2, 500, 500)
                         self.ak.setPitchRangeMoving((world_X, world_Y, 12), -90, -90, 0, 1000)
                         time.sleep(1)
 
-                        if not __isRunning:
+                        if not self.is_running:
                             continue
                         result = self.ak.setPitchRangeMoving(
                             (self.coordinate[detect_color][0], self.coordinate[detect_color][1], 12),
@@ -184,7 +185,7 @@ class Motion:
                         )
                         time.sleep(result[2] / 1000)
 
-                        if not __isRunning:
+                        if not self.is_running:
                             continue
                         servo2_angle = getAngle(
                             self.coordinate[detect_color][0], self.coordinate[detect_color][1], -90
@@ -192,7 +193,7 @@ class Motion:
                         Board.setBusServoPulse(2, servo2_angle, 500)
                         time.sleep(0.5)
 
-                        if not __isRunning:
+                        if not self.is_running:
                             continue
                         self.ak.setPitchRangeMoving(
                             (
@@ -207,17 +208,17 @@ class Motion:
                         )
                         time.sleep(0.5)
 
-                        if not __isRunning:
+                        if not self.is_running:
                             continue
                         self.ak.setPitchRangeMoving((self.coordinate[detect_color]), -90, -90, 0, 1000)
                         time.sleep(0.8)
 
-                        if not __isRunning:
+                        if not self.is_running:
                             continue
                         Board.setBusServoPulse(1, servo1 - 200, 500)
                         time.sleep(0.8)
 
-                        if not __isRunning:
+                        if not self.is_running:
                             continue
                         self.ak.setPitchRangeMoving(
                             (self.coordinate[detect_color][0], self.coordinate[detect_color][1], 12),
@@ -253,6 +254,7 @@ class Motion:
 class Perception:
     def __init__(self, tracking_size):
         self.size = tracking_size
+        self.target_color = ('red',)
         self.t1 = 0
         self.roi = ()
         self.last_x = 0
@@ -284,7 +286,7 @@ class Perception:
         area_max = 0
         areaMaxContour = None
         for color in color_range:
-            if color in __target_color:
+            if color in self.target_color:
                 detect_color = color
                 frame_mask = cv2.inRange(frame_lab, color_range[detect_color][0], color_range[detect_color][1])
                 opened = cv2.morphologyEx(frame_mask, cv2.MORPH_OPEN, np.ones((6, 6), np.uint8))
@@ -416,7 +418,9 @@ def reset():
     action_finish = True
     start_pick_up = False
     start_count_t1 = True
+    motion.is_running = False
     perception.is_running = False
+    perception.target_color = ()
     perception.t1 = 0
     perception.roi = ()
     perception.last_x = 0
@@ -432,6 +436,7 @@ def start():
     global __isRunning
     reset()
     __isRunning = True
+    motion.is_running = True
     perception.is_running = True
     print('ColorTracking Start')
 
@@ -441,6 +446,7 @@ def stop():
     global __isRunning
     _stop = True
     __isRunning = False
+    motion.is_running = False
     perception.is_running = False
     print('ColorTracking Stop')
 
@@ -450,6 +456,7 @@ def exit():
     global __isRunning
     _stop = True
     __isRunning = False
+    motion.is_running = False
     perception.is_running = False
     print('ColorTracking Exit')
 
@@ -467,7 +474,7 @@ def run(img):
 if __name__ == '__main__':
     init()
     start()
-    __target_color = ('red',)
+    setTargetColor(('red',))
     my_camera = Camera.Camera()
     my_camera.camera_open()
     while True:
