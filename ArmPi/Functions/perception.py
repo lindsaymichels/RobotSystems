@@ -199,6 +199,7 @@ def move():
                 start_pick_up = False
                 first_move = False
                 action_finish = True
+                track = True
             elif not first_move and not unreachable: # This is not the first time an object has been detected.
                 set_rgb(detect_color)
                 if track: # if tracking stage
