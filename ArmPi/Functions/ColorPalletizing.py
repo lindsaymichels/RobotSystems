@@ -119,7 +119,7 @@ z = z_r
 
 # Pickup tuning (cm, world frame)
 APPROACH_Z = 7.0
-PICK_Z_CANDIDATES = (2.0, 1.5, 1.0, 0.5)
+PICK_Z_CANDIDATES = (0.6, 1.0, 1.5, 2.0)
 PICK_Y_OFFSETS = (0.0, -0.5, -1.0, -1.5, -2.0)
 def reset(): 
     global _stop
