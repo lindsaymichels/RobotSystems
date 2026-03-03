@@ -3,16 +3,13 @@
 import sys
 import os
 from pathlib import Path
+import importlib.util
 BASE_DIR = Path(__file__).resolve().parent
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 import cv2
 import time
 import queue
-try:
-    import Camera
-except ModuleNotFoundError:
-    import camera as Camera
 import logging
 import threading
 import RPCServer
@@ -27,6 +24,30 @@ if sys.version_info.major == 2:
 QUEUE_RPC = queue.Queue(10)
 SORT_FUNC_ID = 3
 STACK_FUNC_ID = 4
+
+def load_camera_module():
+    for module_name in ("Camera", "camera"):
+        try:
+            return __import__(module_name)
+        except ModuleNotFoundError:
+            pass
+
+    candidates = [
+        BASE_DIR / "Camera.py",
+        BASE_DIR / "camera.py",
+        Path("/home/pi/ArmPi/Camera.py"),
+        Path("/home/pi/RobotSystems/ArmPi/Camera.py"),
+    ]
+    for cam_path in candidates:
+        if not cam_path.exists():
+            continue
+        spec = importlib.util.spec_from_file_location("Camera", str(cam_path))
+        if spec and spec.loader:
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
+
+    raise ModuleNotFoundError("Camera module not found. Expected Camera.py in ArmPi directory.")
 
 def switch_mode(func_id, target_colors=('red', 'green', 'blue')):
     if Running.RunningFunc != 0:
@@ -63,6 +84,17 @@ def _stdin_switch_task():
         elif cmd:
             print("Unknown command:", cmd)
 
+def apply_startup_mode_from_argv():
+    if len(sys.argv) < 2:
+        return
+    mode = sys.argv[1].strip().lower()
+    if mode == 'sort':
+        switch_to_sort()
+    elif mode == 'stack':
+        switch_to_stack()
+    else:
+        print("Unknown startup mode:", mode, "(use 'sort' or 'stack')")
+
 def startArmPi():
     global HWEXT, HWSONIC
 
@@ -75,9 +107,11 @@ def startArmPi():
     threading.Thread(target=_stdin_switch_task,
                      daemon=True).start()  # local stdin mode switch
     
-    loading_picture = cv2.imread('/home/pi/ArmPi/CameraCalibration/loading.jpg')
-    cam = Camera.Camera()  # 相机读取
+    loading_picture = cv2.imread(str(BASE_DIR / 'CameraCalibration' / 'loading.jpg'))
+    CameraModule = load_camera_module()
+    cam = CameraModule.Camera()  # 相机读取
     Running.cam = cam
+    apply_startup_mode_from_argv()
 
     while True:
         time.sleep(0.03)
