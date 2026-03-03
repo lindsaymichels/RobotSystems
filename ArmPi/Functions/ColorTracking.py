@@ -7,7 +7,10 @@ if str(BASE_DIR) not in sys.path:
     sys.path.append(str(BASE_DIR))
 import cv2
 import time
-import Camera
+try:
+    import Camera
+except ModuleNotFoundError:
+    import camera as Camera
 import threading
 from LABConfig import *
 from ArmIK.Transform import *
