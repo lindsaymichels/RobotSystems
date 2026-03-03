@@ -12,8 +12,8 @@ import time
 import queue
 import logging
 import threading
-import RPCServer
-import MjpgServer
+import ArmPi.Functions.RPCServer as RPCServer
+import ArmPi.Functions.MjpgServer as MjpgServer
 import HiwonderSDK.Board as Board
 import Functions.Running as Running
 

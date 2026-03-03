@@ -7,9 +7,9 @@ if str(BASE_DIR) not in sys.path:
     sys.path.append(str(BASE_DIR))
 import cv2
 import time
-import Camera
+import ArmPi.Functions.Camera as Camera
 import threading
-from LABConfig import *
+from ArmPi.Functions.LABConfig import *
 from ArmIK.Transform import *
 from ArmIK.ArmMoveIK import *
 import HiwonderSDK.Board as Board
