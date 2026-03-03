@@ -18,6 +18,43 @@ if sys.version_info.major == 2:
     sys.exit(0)
 
 QUEUE_RPC = queue.Queue(10)
+SORT_FUNC_ID = 3
+STACK_FUNC_ID = 4
+
+def switch_mode(func_id, target_colors=('red', 'green', 'blue')):
+    if Running.RunningFunc != 0:
+        Running.stopFunc(())
+    Running.loadFunc((func_id,))
+    exe = Running.CurrentEXE()
+    if hasattr(exe, 'setTargetColor'):
+        exe.setTargetColor(target_colors)
+    Running.startFunc(())
+    print("Switched mode to", "ColorSorting" if func_id == SORT_FUNC_ID else "ColorPalletizing")
+
+def switch_to_sort(target_colors=('red', 'green', 'blue')):
+    switch_mode(SORT_FUNC_ID, target_colors)
+
+def switch_to_stack(target_colors=('red', 'green', 'blue')):
+    switch_mode(STACK_FUNC_ID, target_colors)
+
+def _stdin_switch_task():
+    print("Mode switch commands: 'sort', 'stack', 'status'")
+    while True:
+        try:
+            cmd = input().strip().lower()
+        except EOFError:
+            break
+        except Exception:
+            time.sleep(0.1)
+            continue
+        if cmd == 'sort':
+            switch_to_sort()
+        elif cmd == 'stack':
+            switch_to_stack()
+        elif cmd == 'status':
+            print("RunningFunc =", Running.RunningFunc)
+        elif cmd:
+            print("Unknown command:", cmd)
 
 def startArmPi():
     global HWEXT, HWSONIC
@@ -28,6 +65,8 @@ def startArmPi():
                      daemon=True).start()  # rpc服务器
     threading.Thread(target=MjpgServer.startMjpgServer,
                      daemon=True).start()  # mjpg流服务器
+    threading.Thread(target=_stdin_switch_task,
+                     daemon=True).start()  # local stdin mode switch
     
     loading_picture = cv2.imread('/home/pi/ArmPi/CameraCalibration/loading.jpg')
     cam = Camera.Camera()  # 相机读取
