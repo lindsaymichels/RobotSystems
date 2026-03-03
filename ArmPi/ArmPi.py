@@ -2,10 +2,17 @@
 # coding=utf8
 import sys
 import os
+from pathlib import Path
+BASE_DIR = Path(__file__).resolve().parent
+if str(BASE_DIR) not in sys.path:
+    sys.path.insert(0, str(BASE_DIR))
 import cv2
 import time
 import queue
-import Camera
+try:
+    import Camera
+except ModuleNotFoundError:
+    import camera as Camera
 import logging
 import threading
 import RPCServer
