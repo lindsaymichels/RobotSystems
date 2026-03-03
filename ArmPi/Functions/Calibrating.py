@@ -2,15 +2,34 @@
 # coding=utf8
 import sys
 from pathlib import Path
+import importlib.util
 BASE_DIR = Path(__file__).resolve().parents[1]
 if str(BASE_DIR) not in sys.path:
     sys.path.append(str(BASE_DIR))
 import cv2
 import time
-try:
-    import Camera
-except ModuleNotFoundError:
-    import camera as Camera
+def _load_camera_module():
+    for module_name in ("Camera", "camera"):
+        try:
+            return __import__(module_name)
+        except ModuleNotFoundError:
+            pass
+    for cam_path in (
+        BASE_DIR / "Camera.py",
+        BASE_DIR / "camera.py",
+        Path("/home/pi/ArmPi/Camera.py"),
+        Path("/home/pi/RobotSystems/ArmPi/Camera.py"),
+    ):
+        if not cam_path.exists():
+            continue
+        spec = importlib.util.spec_from_file_location("Camera", str(cam_path))
+        if spec and spec.loader:
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
+    raise ModuleNotFoundError("Camera module not found")
+
+Camera = _load_camera_module()
 from ArmIK.ArmMoveIK import *
 import HiwonderSDK.Board as Board
 
