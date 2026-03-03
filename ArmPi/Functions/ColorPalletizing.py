@@ -119,8 +119,9 @@ z = z_r
 
 # Pickup tuning (cm, world frame)
 APPROACH_Z = 7.0
-PICK_Z_CANDIDATES = (0.6, 1.0, 1.5, 2.0)
+PICK_Z_CANDIDATES = (0.3, 0.6, 1.0, 1.5, 2.0)
 PICK_Y_OFFSETS = (0.0, -0.5, -1.0, -1.5, -2.0)
+PICK_PRESS_DELTA_Z = 0.4
 def reset(): 
     global _stop
     global count
@@ -254,6 +255,15 @@ def move():
                         continue
                     print("Pickup descend z:", used_pick_z, "y offset:", used_pick_y_offset, "target:", (pickup_x, pickup_y))
                     time.sleep(1.5)
+
+                    if not __isRunning:
+                        continue
+                    # Optional extra press-down to improve grasp when cube sits low on the mat.
+                    press_z = used_pick_z - PICK_PRESS_DELTA_Z
+                    press_result = AK.setPitchRangeMoving((pickup_x, pickup_y, press_z), -90, -90, 0, 500)
+                    if press_result != False:
+                        print("Pickup press z:", press_z, "target:", (pickup_x, pickup_y))
+                        time.sleep(0.4)
 
                     if not __isRunning:
                         continue
