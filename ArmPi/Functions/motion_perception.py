@@ -101,6 +101,17 @@ detect_color = 'None'
 action_finish = True
 start_pick_up = False
 start_count_t1 = True
+# Stack placement coordinates
+coordinate = {
+    'red':   (-15 + 1, -7 - 0.5, 1.5),
+    'green': (-15 + 1, -7 - 0.5, 1.5),
+    'blue':  (-15 + 1, -7 - 0.5, 1.5),
+}
+
+z_r = coordinate['red'][2]
+z_g = coordinate['green'][2]
+z_b = coordinate['blue'][2]
+z = z_r
 # Reset variables
 def reset():
     global count
@@ -115,6 +126,7 @@ def reset():
     global start_pick_up
     global __target_color
     global start_count_t1
+    global z_r, z_g, z_b, z
     
     count = 0
     _stop = False
@@ -122,11 +134,15 @@ def reset():
     get_roi = False
     center_list = []
     first_move = True
-    __target_color = ()
+    __target_color = ('red', 'green', 'blue')
     detect_color = 'None'
     action_finish = True
     start_pick_up = False
     start_count_t1 = True
+    z_r = coordinate['red'][2]
+    z_g = coordinate['green'][2]
+    z_b = coordinate['blue'][2]
+    z = z_r
 
 # Called when app initializes
 def init():
@@ -177,33 +193,103 @@ def move_stack():
     global world_x, world_y
     global center_list, count
     global start_pick_up, first_move
+    global z_r, z_g, z_b, z
 
     while True:
         if __isRunning:
-            if first_move and start_pick_up: # When an object is first detected               
+            if detect_color != 'None' and start_pick_up:
                 action_finish = False
                 set_rgb(detect_color)
-                setBuzzer(0.1)               
-                result = AK.setPitchRangeMoving((world_X, world_Y - 2, 5), -90, -90, 0) # If no runtime parameter is specified, the runtime will be adaptive
+                setBuzzer(0.1)
+                z = z_r
+                z_r += 2.5
+                if z == 5.0 + coordinate['red'][2]:
+                    z_r = coordinate['red'][2]
+                result = AK.setPitchRangeMoving((world_X, world_Y, 7), -90, -90, 0)
                 if result == False:
                     unreachable = True
-                else:
-                    unreachable = False
-                time.sleep(result[2]/1000) # The third parameter returned is time.
+                    start_pick_up = False
+                    detect_color = 'None'
+                    action_finish = True
+                    continue
+
+                unreachable = False
+                time.sleep(result[2]/1000)
+
+                if not __isRunning:
+                    action_finish = True
+                    continue
+                servo2_angle = getAngle(world_X, world_Y, rotation_angle)
+                Board.setBusServoPulse(1, servo1 - 280, 500)
+                Board.setBusServoPulse(2, servo2_angle, 500)
+                time.sleep(0.5)
+
+                if not __isRunning:
+                    action_finish = True
+                    continue
+                AK.setPitchRangeMoving((world_X, world_Y, 2), -90, -90, 0, 1000)
+                time.sleep(1.5)
+
+                if not __isRunning:
+                    action_finish = True
+                    continue
+                Board.setBusServoPulse(1, servo1, 500)
+                time.sleep(0.8)
+
+                if not __isRunning:
+                    action_finish = True
+                    continue
+                Board.setBusServoPulse(2, 500, 500)
+                AK.setPitchRangeMoving((world_X, world_Y, 12), -90, -90, 0, 1000)
+                time.sleep(1)
+
+                if not __isRunning:
+                    action_finish = True
+                    continue
+                AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], 12), -90, -90, 0, 1500)
+                time.sleep(1.5)
+
+                if not __isRunning:
+                    action_finish = True
+                    continue
+                servo2_angle = getAngle(coordinate[detect_color][0], coordinate[detect_color][1], -90)
+                Board.setBusServoPulse(2, servo2_angle, 500)
+                time.sleep(0.5)
+
+                if not __isRunning:
+                    action_finish = True
+                    continue
+                AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], z + 3), -90, -90, 0, 500)
+                time.sleep(0.5)
+
+                if not __isRunning:
+                    action_finish = True
+                    continue
+                AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], z), -90, -90, 0, 1000)
+                time.sleep(0.8)
+
+                if not __isRunning:
+                    action_finish = True
+                    continue
+                Board.setBusServoPulse(1, servo1 - 200, 500)
+                time.sleep(1)
+
+                if not __isRunning:
+                    action_finish = True
+                    continue
+                AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], 12), -90, -90, 0, 800)
+                time.sleep(0.8)
+
+                initMove()
+                time.sleep(1.5)
+
+                detect_color = 'None'
+                get_roi = False
                 start_pick_up = False
-                first_move = False
                 action_finish = True
-                track = True 
-            elif not first_move and not unreachable: # This is not the first time an object has been detected.
                 set_rgb(detect_color)
-                if track: # if tracking stage
-                    if not __isRunning: # Stop and exit flag detection
-                        continue
-                    AK.setPitchRangeMoving((world_x, world_y - 2, 5), -90, -90, 0, 20)
-                    time.sleep(0.02)
-                    track = False
-                else:
-                    time.sleep(0.01)
+            else:
+                time.sleep(0.01)
         else:
             if _stop:
                 _stop = False
