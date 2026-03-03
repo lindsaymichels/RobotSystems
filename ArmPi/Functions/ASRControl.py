@@ -31,7 +31,7 @@ def _load_camera_module():
 
 Camera = _load_camera_module()
 import threading
-from ArmPi.Functions.LABConfig import *
+from LABConfig import *
 from ArmIK.Transform import *
 from ArmIK.ArmMoveIK import *
 import HiwonderSDK.ASR as ASR
