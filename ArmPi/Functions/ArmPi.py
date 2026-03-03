@@ -5,8 +5,10 @@ import os
 from pathlib import Path
 import importlib.util
 BASE_DIR = Path(__file__).resolve().parent
-if str(BASE_DIR) not in sys.path:
-    sys.path.insert(0, str(BASE_DIR))
+ROOT_DIR = BASE_DIR.parent
+for p in (str(ROOT_DIR), str(BASE_DIR)):
+    if p not in sys.path:
+        sys.path.insert(0, p)
 import cv2
 import time
 import queue

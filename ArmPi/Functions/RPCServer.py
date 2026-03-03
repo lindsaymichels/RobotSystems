@@ -2,7 +2,12 @@
 # coding=utf8
 import os
 import sys
-sys.path.append('/home/pi/ArmPi/')
+from pathlib import Path
+BASE_DIR = Path(__file__).resolve().parent
+ROOT_DIR = BASE_DIR.parent
+for p in (str(ROOT_DIR), str(BASE_DIR)):
+    if p not in sys.path:
+        sys.path.insert(0, p)
 import time
 import logging
 import threading
