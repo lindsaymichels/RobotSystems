@@ -116,6 +116,11 @@ z_r = coordinate['red'][2]
 z_g = coordinate['green'][2]
 z_b = coordinate['blue'][2]
 z = z_r
+
+# Pickup tuning (cm, world frame)
+APPROACH_Z = 7.0
+PICK_Z_CANDIDATES = (2.0, 1.5, 1.0, 0.5)
+PICK_Y_OFFSETS = (0.0, -0.5, -1.0, -1.5, -2.0)
 def reset(): 
     global _stop
     global count
@@ -204,7 +209,7 @@ def move():
                     move_square = True
                     time.sleep(3)
                     move_square = False
-                result = AK.setPitchRangeMoving((world_X, world_Y, 7), -90, -90, 0)  # 移到目标位置，高度5cm
+                result = AK.setPitchRangeMoving((world_X, world_Y, APPROACH_Z), -90, -90, 0)  # approach above target
                 if result == False:
                     unreachable = True
                     # 恢复检测流程，避免一直卡在不可达状态
@@ -216,15 +221,38 @@ def move():
 
                     if not __isRunning:
                         continue
+                    pickup_x = world_X
+                    pickup_y = world_Y
                     # 计算夹持器需要旋转的角度
-                    servo2_angle = getAngle(world_X, world_Y, rotation_angle)
+                    servo2_angle = getAngle(pickup_x, pickup_y, rotation_angle)
                     Board.setBusServoPulse(1, servo1 - 280, 500)  # 爪子张开
                     Board.setBusServoPulse(2, servo2_angle, 500)
                     time.sleep(0.5)
 
                     if not __isRunning:
                         continue
-                    AK.setPitchRangeMoving((world_X, world_Y, 1.0), -90, -90, 0, 1000)  # 降低高度到2cm
+                    # Try descending in steps; IK may reject very low Z at some X/Y.
+                    descend_result = False
+                    used_pick_z = None
+                    used_pick_y_offset = 0.0
+                    for y_offset in PICK_Y_OFFSETS:
+                        test_y = world_Y + y_offset
+                        for pick_z in PICK_Z_CANDIDATES:
+                            descend_result = AK.setPitchRangeMoving((world_X, test_y, pick_z), -90, -90, 0, 1000)
+                            if descend_result != False:
+                                pickup_y = test_y
+                                used_pick_y_offset = y_offset
+                                used_pick_z = pick_z
+                                break
+                        if descend_result != False:
+                            break
+                    if descend_result == False:
+                        print("Descend IK failed at", world_X, world_Y, "z candidates", PICK_Z_CANDIDATES, "y offsets", PICK_Y_OFFSETS)
+                        start_pick_up = False
+                        detect_color = 'None'
+                        get_roi = False
+                        continue
+                    print("Pickup descend z:", used_pick_z, "y offset:", used_pick_y_offset, "target:", (pickup_x, pickup_y))
                     time.sleep(1.5)
 
                     if not __isRunning:
@@ -235,7 +263,7 @@ def move():
                     if not __isRunning:
                         continue
                     Board.setBusServoPulse(2, 500, 500)
-                    AK.setPitchRangeMoving((world_X, world_Y, 12), -90, -90, 0, 1000)  # 机械臂抬起
+                    AK.setPitchRangeMoving((pickup_x, pickup_y, 12), -90, -90, 0, 1000)  # 机械臂抬起
                     time.sleep(1)
 
                     if not __isRunning:
