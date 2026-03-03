@@ -12,10 +12,10 @@ import time
 import queue
 import logging
 import threading
-import ArmPi.Functions.RPCServer as RPCServer
-import ArmPi.Functions.MjpgServer as MjpgServer
+import RPCServer as RPCServer
+import MjpgServer as MjpgServer
 import HiwonderSDK.Board as Board
-import Functions.Running as Running
+import Running as Running
 
 if sys.version_info.major == 2:
     print('Please run this program with python3!')
