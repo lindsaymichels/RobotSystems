@@ -56,6 +56,8 @@ def switch_mode(func_id, target_colors=('red', 'green', 'blue')):
         Running.stopFunc(())
     Running.loadFunc((func_id,))
     exe = Running.CurrentEXE()
+    if hasattr(exe, 'setMode'):
+        exe.setMode('sort' if func_id == SORT_FUNC_ID else 'stack')
     if hasattr(exe, 'setTargetColor'):
         exe.setTargetColor(target_colors)
     Running.startFunc(())
@@ -117,6 +119,8 @@ def startArmPi():
 
     while True:
         time.sleep(0.03)
+        if Running.RunningFunc != 0:
+            Running.doHeartbeat(())
 
         # 执行需要在本线程中执行的RPC命令
         while True:

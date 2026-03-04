@@ -35,12 +35,20 @@ range_rgb = {
 }
 
 __target_color = ('red',)
+operation_mode = 'stack'
 # set color
 def setTargetColor(target_color):
     global __target_color
 
     #print("COLOR", target_color)
     __target_color = target_color
+    return (True, ())
+
+def setMode(mode):
+    global operation_mode
+    mode = str(mode).lower()
+    operation_mode = 'sort' if mode == 'sort' else 'stack'
+    print("motion_perception mode:", operation_mode)
     return (True, ())
 
 # Find the contour with the largest area
@@ -105,15 +113,21 @@ action_finish = True
 start_pick_up = False
 start_count_t1 = True
 # Stack placement coordinates
-coordinate = {
+sort_coordinate = {
+    'red':   (-15 + 0.5, 12 - 0.5, 1.5),
+    'green': (-15 + 0.5, 6 - 0.5,  1.5),
+    'blue':  (-15 + 0.5, 0 - 0.5,  1.5),
+}
+
+stack_coordinate = {
     'red':   (-15 + 1, -7 - 0.5, 1.5),
     'green': (-15 + 1, -7 - 0.5, 1.5),
     'blue':  (-15 + 1, -7 - 0.5, 1.5),
 }
 
-z_r = coordinate['red'][2]
-z_g = coordinate['green'][2]
-z_b = coordinate['blue'][2]
+z_r = stack_coordinate['red'][2]
+z_g = stack_coordinate['green'][2]
+z_b = stack_coordinate['blue'][2]
 z = z_r
 # Reset variables
 def reset():
@@ -142,9 +156,9 @@ def reset():
     action_finish = True
     start_pick_up = False
     start_count_t1 = True
-    z_r = coordinate['red'][2]
-    z_g = coordinate['green'][2]
-    z_b = coordinate['blue'][2]
+    z_r = stack_coordinate['red'][2]
+    z_g = stack_coordinate['green'][2]
+    z_b = stack_coordinate['blue'][2]
     z = z_r
 
 # Called when app initializes
@@ -197,6 +211,7 @@ def move_stack():
     global center_list, count
     global start_pick_up, first_move
     global z_r, z_g, z_b, z
+    global operation_mode
 
     while True:
         if __isRunning:
@@ -204,10 +219,15 @@ def move_stack():
                 action_finish = False
                 set_rgb(detect_color)
                 setBuzzer(0.1)
-                z = z_r
-                z_r += 2.5
-                if z == 5.0 + coordinate['red'][2]:
-                    z_r = coordinate['red'][2]
+                if operation_mode == 'sort':
+                    target = sort_coordinate[detect_color]
+                    z = target[2]
+                else:
+                    target = stack_coordinate[detect_color]
+                    z = z_r
+                    z_r += 2.5
+                    if z == 5.0 + stack_coordinate['red'][2]:
+                        z_r = stack_coordinate['red'][2]
                 result = AK.setPitchRangeMoving((world_X, world_Y, 7), -90, -90, 0)
                 if result == False:
                     unreachable = True
@@ -249,26 +269,26 @@ def move_stack():
                 if not __isRunning:
                     action_finish = True
                     continue
-                AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], 12), -90, -90, 0, 1500)
+                AK.setPitchRangeMoving((target[0], target[1], 12), -90, -90, 0, 1500)
                 time.sleep(1.5)
 
                 if not __isRunning:
                     action_finish = True
                     continue
-                servo2_angle = getAngle(coordinate[detect_color][0], coordinate[detect_color][1], -90)
+                servo2_angle = getAngle(target[0], target[1], -90)
                 Board.setBusServoPulse(2, servo2_angle, 500)
                 time.sleep(0.5)
 
                 if not __isRunning:
                     action_finish = True
                     continue
-                AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], z + 3), -90, -90, 0, 500)
+                AK.setPitchRangeMoving((target[0], target[1], z + 3), -90, -90, 0, 500)
                 time.sleep(0.5)
 
                 if not __isRunning:
                     action_finish = True
                     continue
-                AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], z), -90, -90, 0, 1000)
+                AK.setPitchRangeMoving((target[0], target[1], z), -90, -90, 0, 1000)
                 time.sleep(0.8)
 
                 if not __isRunning:
@@ -280,7 +300,7 @@ def move_stack():
                 if not __isRunning:
                     action_finish = True
                     continue
-                AK.setPitchRangeMoving((coordinate[detect_color][0], coordinate[detect_color][1], 12), -90, -90, 0, 800)
+                AK.setPitchRangeMoving((target[0], target[1], 12), -90, -90, 0, 800)
                 time.sleep(0.8)
 
                 initMove()

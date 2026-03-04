@@ -5,10 +5,9 @@ import time
 import threading
 import Functions.ASRControl as ASRControl
 import Functions.Calibrating as Calibrating
-import Functions.ColorSorting as ColorSorting
+import Functions.motion_perception as motion_perception
 import Functions.RemoteControl as RemoteControl
 import Functions.ColorTracking as ColorTracking
-import Functions.ColorPalletizing as ColorPalletizing
 
 RunningFunc = 0
 LastHeartbeat = 0
@@ -17,8 +16,8 @@ cam = None
 FUNCTIONS = {
     1: RemoteControl,    # 运动控制
     2: ColorTracking,    # 颜色追踪
-    3: ColorSorting,     # 颜色分拣
-    4: ColorPalletizing, # 智能码垛
+    3: motion_perception, # 颜色分拣(基于motion_perception)
+    4: motion_perception, # 智能码垛(基于motion_perception)
     5: ASRControl,       # 语音控制
     6: Calibrating,      # 位置校准 
 }
