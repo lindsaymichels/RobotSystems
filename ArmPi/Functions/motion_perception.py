@@ -117,8 +117,8 @@ color_index = 0
 # Stack placement coordinates
 sort_coordinate = {
     'red':   (-15 + 0.5, 12 - 0.5, 1.5),
-        'green': (-15 + 0.5, 6 - 0.5,  1.5),
-        'blue':  (-15 + 0.5, 0 - 0.5,  1.5),
+    'green': (-15 + 0.5, 6 - 0.5,  1.5),
+    'blue':  (-15 + 0.5, 0 - 0.5,  1.5),
 }
 
 stack_coordinate = {
