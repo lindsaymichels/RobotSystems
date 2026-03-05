@@ -68,7 +68,7 @@ def getAreaMaxContour(contours):
     return area_max_contour, contour_area_max  # Return the largest contour
 
 # Gripper closed angle used for grasping
-servo1 = 500
+servo1 = 550
 
 # Initial position
 def initMove():
