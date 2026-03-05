@@ -112,6 +112,8 @@ detect_color = 'None'
 action_finish = True
 start_pick_up = False
 start_count_t1 = True
+color_sequence = ['red', 'blue', 'green']
+color_index = 0
 # Stack placement coordinates
 sort_coordinate = {
     'red':   (-15 + 0.5, 12 - 0.5, 1.5),
@@ -144,6 +146,7 @@ def reset():
     global __target_color
     global start_count_t1
     global z_r, z_g, z_b, z
+    global color_index
     
     count = 0
     _stop = False
@@ -151,7 +154,8 @@ def reset():
     get_roi = False
     center_list = []
     first_move = True
-    __target_color = ('red', 'green', 'blue')
+    color_index = 0
+    __target_color = (color_sequence[color_index],)
     detect_color = 'None'
     action_finish = True
     start_pick_up = False
@@ -311,6 +315,14 @@ def move_stack():
                 start_pick_up = False
                 action_finish = True
                 set_rgb(detect_color)
+                
+                # Advance to next color
+                color_index += 1
+                if color_index < len(color_sequence):
+                    __target_color = (color_sequence[color_index],)
+                else:
+                    # All colors processed, stop
+                    __isRunning = False
             else:
                 time.sleep(0.01)
         else:
