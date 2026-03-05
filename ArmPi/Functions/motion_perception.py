@@ -216,6 +216,8 @@ def move_stack():
     global start_pick_up, first_move
     global z_r, z_g, z_b, z
     global operation_mode
+    global color_index
+    global __target_color
 
     while True:
         if __isRunning:
