@@ -35,7 +35,7 @@ range_rgb = {
 }
 
 __target_color = ('red',)
-operation_mode = 'stack'
+operation_mode = 'sort'
 # set color
 def setTargetColor(target_color):
     global __target_color
