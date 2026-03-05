@@ -183,7 +183,7 @@ class Perception:
 class Motion:
     def __init__(self, perception):
         self.perception = perception
-        self.servo1 = 550
+        self.servo1 = 600
         self.operation_mode = 'sort'
         self.is_running = False
         self.stop_requested = False
